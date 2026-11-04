@@ -6,7 +6,6 @@ export async function onRequestPost(context) {
     const PAT = env.PAT;
     const BOT_ID = '7703789015912284179';
 
-    // 第一步：发起对话
     const chatRes = await fetch('https://api.coze.cn/v3/chat', {
       method: 'POST',
       headers: {
@@ -28,14 +27,14 @@ export async function onRequestPost(context) {
 
     const chatData = await chatRes.json();
     
+    // 把API原始返回也带上，方便调试
     if (chatData.code !== 0) {
-      return Response.json({ reply: 'API错误：' + chatData.msg });
+      return Response.json({ reply: 'API错误 code=' + chatData.code + ' msg=' + chatData.msg });
     }
 
     const chatId = chatData.data.id;
     const conversationId = chatData.data.conversation_id;
 
-    // 第二步：轮询等结果
     let reply = '';
     for (let i = 0; i < 30; i++) {
       await new Promise(r => setTimeout(r, 1000));
@@ -55,8 +54,8 @@ export async function onRequestPost(context) {
       }
     }
 
-    return Response.json({ reply: reply || '超时了，再试一次' });
+    return Response.json({ reply: reply || '超时了，chatId=' + chatId });
   } catch (e) {
-    return Response.json({ reply: '出错了：' + e.message });
+    return Response.json({ reply: '异常：' + e.message });
   }
 }
