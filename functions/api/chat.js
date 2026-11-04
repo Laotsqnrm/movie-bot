@@ -29,34 +29,27 @@ export async function onRequestPost(context) {
     const chatId = chatData.data.id;
     const conversationId = chatData.data.conversation_id;
 
-    let reply = '';
-    let debugInfo = '';
-    
-    for (let i = 0; i < 30; i++) {
-      await new Promise(r => setTimeout(r, 1000));
+    // 查3次状态
+    let statusInfo = '';
+    for (let i = 0; i < 5; i++) {
+      await new Promise(r => setTimeout(r, 2000));
       
-      const msgRes = await fetch(
-        'https://api.coze.cn/v3/chat/message/list?chat_id=' + chatId + '&conversation_id=' + conversationId,
+      const statusRes = await fetch(
+        'https://api.coze.cn/v3/chat/retrieve?chat_id=' + chatId + '&conversation_id=' + conversationId,
         { headers: { 'Authorization': 'Bearer ' + PAT } }
       );
-      
-      const msgData = await msgRes.json();
-      const messages = msgData.data || [];
-      
-      // 记录所有消息类型，方便调试
-      if (i === 5) {
-        const types = messages.map(m => m.type).join(',');
-        debugInfo = ' 第5秒消息类型: ' + types;
-      }
-      
-      const answer = messages.find(m => m.type === 'answer');
-      if (answer) {
-        reply = answer.content;
-        break;
-      }
+      const statusData = await statusRes.json();
+      statusInfo += ' 第' + ((i+1)*2) + '秒: ' + (statusData.data?.status || JSON.stringify(statusData));
     }
 
-    return Response.json({ reply: reply || ('超时了' + debugInfo) });
+    // 查消息列表
+    const msgRes = await fetch(
+      'https://api.coze.cn/v3/chat/message/list?chat_id=' + chatId + '&conversation_id=' + conversationId,
+      { headers: { 'Authorization': 'Bearer ' + PAT } }
+    );
+    const msgData = await msgRes.json();
+    
+    return Response.json({ reply: '状态：' + statusInfo + '\n消息：' + JSON.stringify(msgData.data) });
   } catch (e) {
     return Response.json({ reply: '异常：' + e.message });
   }
