@@ -26,16 +26,12 @@ export async function onRequestPost(context) {
     });
 
     const chatData = await chatRes.json();
-    
-    // 把API原始返回也带上，方便调试
-    if (chatData.code !== 0) {
-      return Response.json({ reply: 'API错误 code=' + chatData.code + ' msg=' + chatData.msg });
-    }
-
     const chatId = chatData.data.id;
     const conversationId = chatData.data.conversation_id;
 
     let reply = '';
+    let debugInfo = '';
+    
     for (let i = 0; i < 30; i++) {
       await new Promise(r => setTimeout(r, 1000));
       
@@ -47,6 +43,12 @@ export async function onRequestPost(context) {
       const msgData = await msgRes.json();
       const messages = msgData.data || [];
       
+      // 记录所有消息类型，方便调试
+      if (i === 5) {
+        const types = messages.map(m => m.type).join(',');
+        debugInfo = ' 第5秒消息类型: ' + types;
+      }
+      
       const answer = messages.find(m => m.type === 'answer');
       if (answer) {
         reply = answer.content;
@@ -54,7 +56,7 @@ export async function onRequestPost(context) {
       }
     }
 
-    return Response.json({ reply: reply || '超时了，chatId=' + chatId });
+    return Response.json({ reply: reply || ('超时了' + debugInfo) });
   } catch (e) {
     return Response.json({ reply: '异常：' + e.message });
   }
