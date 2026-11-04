@@ -6,6 +6,7 @@ export async function onRequestPost(context) {
     const PAT = env.PAT;
     const BOT_ID = '7703789015912284179';
 
+    // 发起对话
     const chatRes = await fetch('https://api.coze.cn/v3/chat', {
       method: 'POST',
       headers: {
@@ -40,15 +41,17 @@ export async function onRequestPost(context) {
       if (statusData.data?.status === 'completed') break;
     }
 
-    // 查消息列表，返回原始数据
+    // 查消息列表，提取 answer
     const msgRes = await fetch(
       'https://api.coze.cn/v3/chat/message/list?chat_id=' + chatId + '&conversation_id=' + conversationId,
       { headers: { 'Authorization': 'Bearer ' + PAT } }
     );
     const msgData = await msgRes.json();
-    
-    return Response.json({ reply: JSON.stringify(msgData) });
+    const messages = msgData.data || [];
+    const answer = messages.find(m => m.type === 'answer');
+
+    return Response.json({ reply: answer?.content || '没拿到回答，再试一次' });
   } catch (e) {
-    return Response.json({ reply: '异常：' + e.message });
+    return Response.json({ reply: '出错了：' + e.message });
   }
 }
