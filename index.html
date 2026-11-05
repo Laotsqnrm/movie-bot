@@ -3,111 +3,322 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>豆瓣电影推荐</title>
+  <title>豆瓣电影推荐 · Douban Movie</title>
   <style>
+    /* ========== 重置 ========== */
     * { margin: 0; padding: 0; box-sizing: border-box; }
+    *::before, *::after { box-sizing: border-box; }
+
+    /* ========== 变量 ========== */
+    :root {
+      --bg-primary: #0a0e1a;
+      --bg-secondary: #111827;
+      --bg-card: rgba(255, 255, 255, 0.05);
+      --bg-card-hover: rgba(255, 255, 255, 0.08);
+      --accent: #00b389;
+      --accent-light: #4dd9b8;
+      --accent-dark: #008a6c;
+      --text-primary: #f3f4f6;
+      --text-secondary: #9ca3af;
+      --text-muted: #6b7280;
+      --border: rgba(255, 255, 255, 0.08);
+      --shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      --radius: 16px;
+      --radius-sm: 10px;
+    }
+
+    /* ========== 全局 ========== */
     body {
-      font-family: -apple-system, "PingFang SC", sans-serif;
-      background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f0 100%);
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
       height: 100vh;
       display: flex;
       flex-direction: column;
+      overflow: hidden;
     }
+
+    /* 背景装饰 */
+    body::before {
+      content: '';
+      position: fixed;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: 
+        radial-gradient(circle at 20% 20%, rgba(0, 179, 137, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 80% 80%, rgba(0, 100, 200, 0.06) 0%, transparent 40%);
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* ========== 顶部 ========== */
     .header {
-      background: linear-gradient(135deg, #00b389 0%, #00796b 100%);
-      color: white;
-      padding: 20px;
+      position: relative;
+      z-index: 10;
+      background: linear-gradient(135deg, rgba(0, 179, 137, 0.15) 0%, rgba(0, 138, 108, 0.05) 100%);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      padding: 20px 24px;
       text-align: center;
-      box-shadow: 0 4px 20px rgba(0,179,137,0.3);
     }
-    .header h1 { font-size: 20px; font-weight: 700; letter-spacing: 1px; }
-    .header p { font-size: 12px; opacity: 0.8; margin-top: 4px; }
+    .header h1 {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      background: linear-gradient(135deg, var(--accent-light), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .header p {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: 6px;
+    }
+    .header .badge {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 3px 12px;
+      background: rgba(0, 179, 137, 0.15);
+      border: 1px solid rgba(0, 179, 137, 0.3);
+      border-radius: 20px;
+      font-size: 11px;
+      color: var(--accent-light);
+    }
+
+    /* ========== 聊天区 ========== */
     .chat-box {
       flex: 1;
       overflow-y: auto;
-      padding: 24px 16px;
-      max-width: 720px;
+      padding: 24px 20px;
+      max-width: 800px;
       margin: 0 auto;
       width: 100%;
+      position: relative;
+      z-index: 1;
     }
+    .chat-box::-webkit-scrollbar { width: 6px; }
+    .chat-box::-webkit-scrollbar-track { background: transparent; }
+    .chat-box::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+
+    /* ========== 消息气泡 ========== */
     .msg {
-      max-width: 90%;
+      max-width: 92%;
       margin-bottom: 20px;
       padding: 16px 20px;
-      border-radius: 18px;
+      border-radius: var(--radius);
       line-height: 1.8;
       font-size: 14px;
+      animation: fadeInUp 0.3s ease;
     }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* 用户消息 */
     .user {
-      background: linear-gradient(135deg, #00b389, #009672);
+      background: linear-gradient(135deg, var(--accent), var(--accent-dark));
       color: white;
       margin-left: auto;
-      border-bottom-right-radius: 6px;
-      box-shadow: 0 4px 12px rgba(0,179,137,0.25);
+      border-bottom-right-radius: 4px;
+      box-shadow: 0 4px 20px rgba(0, 179, 137, 0.3);
     }
+
+    /* 智能体消息 */
     .bot {
-      background: white;
+      background: var(--bg-card);
+      backdrop-filter: blur(10px);
       margin-right: auto;
-      border-bottom-left-radius: 6px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      border-bottom-left-radius: 4px;
+      border: 1px solid var(--border);
     }
-    .bot img {
-      width: 100px;
-      border-radius: 8px;
-      margin-top: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+
+    /* ========== 电影卡片 ========== */
+    .movie-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin: 12px 0;
+      display: flex;
+      gap: 16px;
+      transition: all 0.3s ease;
     }
-    .bot a { color: #00b389; text-decoration: none; word-break: break-all; }
-    .bot a:hover { text-decoration: underline; }
+    .movie-card:hover {
+      background: var(--bg-card-hover);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow);
+    }
+    .movie-poster {
+      width: 80px;
+      height: 112px;
+      border-radius: var(--radius-sm);
+      object-fit: cover;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    }
+    .movie-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .movie-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+    .movie-rank {
+      display: inline-block;
+      padding: 1px 8px;
+      background: rgba(0, 179, 137, 0.2);
+      color: var(--accent-light);
+      border-radius: 10px;
+      font-size: 11px;
+      margin-left: 8px;
+    }
+    .movie-rating {
+      color: #fbbf24;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .movie-year {
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+    .movie-director {
+      color: var(--text-secondary);
+      font-size: 13px;
+      margin-top: 4px;
+    }
+    .movie-genres {
+      margin-top: 6px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .genre-tag {
+      padding: 2px 10px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 12px;
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+    .movie-desc {
+      color: var(--text-secondary);
+      font-size: 13px;
+      margin-top: 8px;
+      line-height: 1.6;
+    }
+    .movie-link {
+      display: inline-block;
+      margin-top: 10px;
+      color: var(--accent-light);
+      text-decoration: none;
+      font-size: 13px;
+      padding: 4px 12px;
+      border: 1px solid rgba(0, 179, 137, 0.3);
+      border-radius: 16px;
+      transition: all 0.2s;
+    }
+    .movie-link:hover {
+      background: rgba(0, 179, 137, 0.15);
+      border-color: var(--accent);
+    }
+
+    /* ========== 输入区 ========== */
     .input-area {
-      background: white;
-      padding: 16px 20px;
-      box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
+      position: relative;
+      z-index: 10;
+      background: rgba(17, 24, 39, 0.8);
+      backdrop-filter: blur(20px);
+      border-top: 1px solid var(--border);
+      padding: 16px 24px;
     }
     .input-wrap {
-      max-width: 720px;
+      max-width: 800px;
       margin: 0 auto;
       display: flex;
       gap: 10px;
     }
-    input {
+    .input-wrap input {
       flex: 1;
       padding: 14px 20px;
-      border: 2px solid #e8e8e8;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
       border-radius: 28px;
       outline: none;
       font-size: 14px;
+      color: var(--text-primary);
       transition: all 0.3s;
-      background: #f9f9f9;
     }
-    input:focus {
-      border-color: #00b389;
-      background: white;
+    .input-wrap input::placeholder { color: var(--text-muted); }
+    .input-wrap input:focus {
+      border-color: var(--accent);
+      background: rgba(0, 179, 137, 0.05);
+      box-shadow: 0 0 0 3px rgba(0, 179, 137, 0.1);
     }
-    button {
+    .input-wrap button {
       padding: 14px 32px;
-      background: linear-gradient(135deg, #00b389, #009672);
+      background: linear-gradient(135deg, var(--accent), var(--accent-dark));
       color: white;
       border: none;
       border-radius: 28px;
       cursor: pointer;
       font-size: 14px;
       font-weight: 600;
-      box-shadow: 0 4px 12px rgba(0,179,137,0.3);
-      transition: all 0.3s;
+      box-shadow: 0 4px 16px rgba(0, 179, 137, 0.3);
+      transition: all 0.2s;
     }
-    button:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(0,179,137,0.4); }
+    .input-wrap button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(0, 179, 137, 0.4);
+    }
+    .input-wrap button:active { transform: translateY(0); }
+
+    /* ========== 打字机加载 ========== */
+    .typing {
+      display: inline-flex;
+      gap: 4px;
+      padding: 4px 0;
+    }
+    .typing span {
+      width: 8px;
+      height: 8px;
+      background: var(--accent);
+      border-radius: 50%;
+      animation: bounce 1.4s infinite ease-in-out;
+    }
+    .typing span:nth-child(1) { animation-delay: 0s; }
+    .typing span:nth-child(2) { animation-delay: 0.2s; }
+    .typing span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounce {
+      0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+      40% { transform: scale(1); opacity: 1; }
+    }
+
+    /* ========== 响应式 ========== */
+    @media (max-width: 600px) {
+      .movie-card { flex-direction: column; }
+      .movie-poster { width: 100%; height: 200px; }
+      .msg { max-width: 100%; }
+    }
   </style>
 </head>
 <body>
   <div class="header">
     <h1>🎬 豆瓣电影推荐</h1>
-    <p>250部经典，帮你挑最好的那一部</p>
+    <p>250 部经典，帮你挑最好的那一部</p>
+    <span class="badge">Top 250 · 智能推荐</span>
   </div>
+
   <div class="chat-box" id="chatBox"></div>
+
   <div class="input-area">
     <div class="input-wrap">
-      <input type="text" id="input" placeholder="说个类型/心情，我给你挑片..." />
+      <input type="text" id="input" placeholder="说个类型 / 心情 / 年代，我给你挑片..." />
       <button onclick="send()">发送</button>
     </div>
   </div>
@@ -122,7 +333,14 @@ async function send() {
   if (!text) return;
   addMsg(text, 'user');
   input.value = '';
-  const loading = addMsg('思考中...', 'bot');
+
+  // 打字机加载动画
+  const loading = document.createElement('div');
+  loading.className = 'msg bot';
+  loading.innerHTML = '<div class="typing"><span></span><span></span><span></span></div>';
+  chatBox.appendChild(loading);
+  chatBox.scrollTop = chatBox.scrollHeight;
+
   try {
     const res = await fetch('/api/chat', {
       method: 'POST',
@@ -131,24 +349,36 @@ async function send() {
     });
     const data = await res.json();
     loading.remove();
-    addMsg(data.reply || '出错了', 'bot');
+    addMsg(data.reply || '出错了，再试一次', 'bot');
   } catch (e) {
     loading.remove();
-    addMsg('网络出错了', 'bot');
+    addMsg('网络出错了，再试一次', 'bot');
   }
 }
 
 function addMsg(text, type) {
   const div = document.createElement('div');
   div.className = 'msg ' + type;
-  // 先提取图片占位，再处理链接，最后还原图片
+
+  // 解析电影卡片格式
+  // 格式：《片名》【第X名】⭐评分（年份）...
+  let html = text;
+
+  // 提取图片占位
   const imgs = [];
-  let html = text.replace(/!\[.*?\]\((.*?)\)/g, (m, url) => {
+  html = html.replace(/!\[.*?\]\((.*?)\)/g, (m, url) => {
     imgs.push(url);
     return '__IMG_' + (imgs.length - 1) + '__';
   });
-  html = html.replace(/(https?:\/\/[^\s)]+)/g, '<a href="$1" target="_blank">$1</a>');
-  html = html.replace(/__IMG_(\d+)__/g, (m, i) => '<img src="' + imgs[i] + '">');
+
+  // 处理链接
+  html = html.replace(/(https?:\/\/[^\s)]+)/g, '<a href="$1" target="_blank" class="movie-link">$1</a>');
+
+  // 还原图片为海报
+  html = html.replace(/__IMG_(\d+)__/g, (m, i) => 
+    '<img src="' + imgs[i] + '" class="movie-poster" style="width:80px;height:112px;border-radius:8px;object-fit:cover;flex-shrink:0;box-shadow:0 4px 12px rgba(0,0,0,0.4);margin-top:10px">'
+  );
+
   div.innerHTML = html;
   chatBox.appendChild(div);
   chatBox.scrollTop = chatBox.scrollHeight;
