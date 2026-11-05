@@ -3,14 +3,14 @@ export async function onRequestPost(context) {
     const { request, env } = context;
     const { message } = await request.json();
 
-    const PAT = env.PAT;
+    const PAT = env.PAT1;
     const BOT_ID = '7703789015912284179';
 
     // 发起对话
     const chatRes = await fetch('https://api.coze.cn/v3/chat', {
       method: 'POST',
       headers: {
-        'Authorization': 'Bearer ' + PAT1,
+        'Authorization': 'Bearer ' + PAT,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
