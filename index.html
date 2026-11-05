@@ -245,6 +245,32 @@ const chatBox = document.getElementById('chatBox');
 const input = document.getElementById('input');
 input.addEventListener('keydown', e => { if(e.key === 'Enter') send(); });
 
+// 渲染文本为 HTML
+function renderHtml(text) {
+  const imgs = [];
+  let html = text.replace(/!\[.*?\]\((.*?)\)/g, (m, url) => {
+    imgs.push(url);
+    return '__IMG_' + (imgs.length - 1) + '__';
+  });
+  html = html.replace(/(https?:\/\/[^\s)]+)/g, '<a href="$1" target="_blank">$1</a>');
+  html = html.replace(/__IMG_(\d+)__/g, (m, i) => '<img src="' + imgs[i] + '">');
+  html = html.replace(/\n/g, '<br>');
+  return html;
+}
+
+// 打字机效果
+async function typeMessage(div, fullText) {
+  let i = 0;
+  const speed = 15; // 每字间隔毫秒
+  while (i < fullText.length) {
+    i += 2; // 每次加2个字，速度快点
+    div.innerHTML = renderHtml(fullText.slice(0, i));
+    chatBox.scrollTop = chatBox.scrollHeight;
+    await new Promise(r => setTimeout(r, speed));
+  }
+  div.innerHTML = renderHtml(fullText);
+}
+
 async function send() {
   const text = input.value.trim();
   if (!text) return;
@@ -265,7 +291,12 @@ async function send() {
     });
     const data = await res.json();
     loading.remove();
-    addMsg(data.reply || '出错了', 'bot');
+    
+    const reply = data.reply || '出错了';
+    const div = document.createElement('div');
+    div.className = 'msg bot';
+    chatBox.appendChild(div);
+    await typeMessage(div, reply);
   } catch (e) {
     loading.remove();
     addMsg('网络出错了', 'bot');
@@ -275,17 +306,7 @@ async function send() {
 function addMsg(text, type) {
   const div = document.createElement('div');
   div.className = 'msg ' + type;
-
-  const imgs = [];
-  let html = text.replace(/!\[.*?\]\((.*?)\)/g, (m, url) => {
-    imgs.push(url);
-    return '__IMG_' + (imgs.length - 1) + '__';
-  });
-  html = html.replace(/(https?:\/\/[^\s)]+)/g, '<a href="$1" target="_blank">$1</a>');
-  html = html.replace(/__IMG_(\d+)__/g, (m, i) => '<img src="' + imgs[i] + '">');
-  html = html.replace(/\n/g, '<br>');
-
-  div.innerHTML = html;
+  div.innerHTML = renderHtml(text);
   chatBox.appendChild(div);
   chatBox.scrollTop = chatBox.scrollHeight;
   return div;
