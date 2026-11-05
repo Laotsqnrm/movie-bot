@@ -10,7 +10,7 @@ export async function onRequestPost(context) {
     const chatRes = await fetch('https://api.coze.cn/v3/chat', {
       method: 'POST',
       headers: {
-        'Authorization': 'Bearer ' + PAT,
+        'Authorization': 'Bearer ' + PAT1,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
