@@ -32,10 +32,10 @@
       flex-direction: column;
       gap: 14px;
       padding: 0 14px;
-      animation: scrollUp 90s linear infinite;
+      animation: scrollUp 180s linear infinite;
     }
     .wall.right .wall-track {
-      animation: scrollDown 90s linear infinite;
+      animation: scrollDown 180s linear infinite;
     }
     @keyframes scrollUp {
       from { transform: translateY(0); }
@@ -238,8 +238,8 @@ function buildWall(el, start, end) {
   }
   el.innerHTML = html;
 }
-buildWall(document.getElementById('wallLeft'), 1, 30);
-buildWall(document.getElementById('wallRight'), 31, 60);
+buildWall(document.getElementById('wallLeft'), 1, 250);
+buildWall(document.getElementById('wallRight'), 1, 250);
 
 const chatBox = document.getElementById('chatBox');
 const input = document.getElementById('input');
