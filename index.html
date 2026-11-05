@@ -15,15 +15,14 @@
       overflow: hidden;
     }
 
-    /* 左右海报墙 - 沾满 */
     .wall {
       position: fixed;
       top: 0;
       bottom: 0;
-      width: 200px;
+      width: 300px;
       overflow: hidden;
       z-index: 0;
-      opacity: 0.4;
+      opacity: 0.45;
     }
     .wall.left { left: 0; }
     .wall.right { right: 0; }
@@ -31,12 +30,12 @@
     .wall-track {
       display: flex;
       flex-direction: column;
-      gap: 12px;
-      padding: 0 12px;
-      animation: scrollUp 80s linear infinite;
+      gap: 14px;
+      padding: 0 14px;
+      animation: scrollUp 90s linear infinite;
     }
     .wall.right .wall-track {
-      animation: scrollDown 80s linear infinite;
+      animation: scrollDown 90s linear infinite;
     }
     @keyframes scrollUp {
       from { transform: translateY(0); }
@@ -48,25 +47,23 @@
     }
 
     .wall img {
-      width: 176px;
-      border-radius: 8px;
+      width: 272px;
+      border-radius: 10px;
       flex-shrink: 0;
       display: block;
     }
 
-    /* 遮罩渐隐 */
     .wall::before, .wall::after {
       content: '';
       position: absolute;
       left: 0;
       right: 0;
-      height: 100px;
+      height: 120px;
       z-index: 1;
     }
     .wall::before { top: 0; background: linear-gradient(to bottom, #0f1117, transparent); }
     .wall::after { bottom: 0; background: linear-gradient(to top, #0f1117, transparent); }
 
-    /* 顶部 */
     .header {
       background: linear-gradient(135deg, #00b389, #00796b);
       color: white;
@@ -78,7 +75,6 @@
     .header h1 { font-size: 20px; font-weight: 600; }
     .header p { font-size: 12px; opacity: 0.85; margin-top: 4px; }
 
-    /* 聊天区 */
     .chat-box {
       flex: 1;
       overflow-y: auto;
@@ -136,7 +132,6 @@
     }
     .bot a:hover { text-decoration: underline; }
 
-    /* 输入区 */
     .input-area {
       background: #1a1d27;
       padding: 14px 20px;
@@ -195,9 +190,13 @@
       40% { transform: scale(1); opacity: 1; }
     }
 
+    @media (max-width: 1400px) {
+      .wall { width: 220px; }
+      .wall img { width: 192px; }
+    }
     @media (max-width: 1100px) {
-      .wall { width: 140px; }
-      .wall img { width: 116px; }
+      .wall { width: 160px; }
+      .wall img { width: 132px; }
     }
     @media (max-width: 800px) {
       .wall { display: none; }
@@ -206,11 +205,9 @@
 </head>
 <body>
 
-  <!-- 左海报墙 -->
   <div class="wall left">
     <div class="wall-track" id="wallLeft"></div>
   </div>
-  <!-- 右海报墙 -->
   <div class="wall right">
     <div class="wall-track" id="wallRight"></div>
   </div>
@@ -230,7 +227,6 @@
   </div>
 
 <script>
-// 生成左右海报墙
 const posterBase = 'https://laotsqnrm.github.io/movie-posters/';
 function buildWall(el, start, end) {
   let html = '';
@@ -242,8 +238,8 @@ function buildWall(el, start, end) {
   }
   el.innerHTML = html;
 }
-buildWall(document.getElementById('wallLeft'), 1, 25);
-buildWall(document.getElementById('wallRight'), 26, 50);
+buildWall(document.getElementById('wallLeft'), 1, 30);
+buildWall(document.getElementById('wallRight'), 31, 60);
 
 const chatBox = document.getElementById('chatBox');
 const input = document.getElementById('input');
@@ -287,6 +283,7 @@ function addMsg(text, type) {
   });
   html = html.replace(/(https?:\/\/[^\s)]+)/g, '<a href="$1" target="_blank">$1</a>');
   html = html.replace(/__IMG_(\d+)__/g, (m, i) => '<img src="' + imgs[i] + '">');
+  html = html.replace(/\n/g, '<br>');
 
   div.innerHTML = html;
   chatBox.appendChild(div);
