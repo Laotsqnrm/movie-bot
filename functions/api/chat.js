@@ -3,7 +3,7 @@ export async function onRequestPost(context) {
     const { request, env } = context;
     const { message } = await request.json();
 
-    const PAT = env.PAT2;
+    const PAT = env.PAT;
     const BOT_ID = '7703789015912284179';
 
     // 发起对话
